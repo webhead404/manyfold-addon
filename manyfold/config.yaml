@@ -1,5 +1,5 @@
 name: Manyfold
-version: "1.0.0"
+version: "1.0.2"
 slug: manyfold
 description: Self-hosted digital asset manager for 3D print files
 url: https://github.com/manyfold3d/manyfold
@@ -19,15 +19,9 @@ ports_description:
 map:
   - share:rw
   - media:rw
-hassio_api: true
-hassio_role: default
-options:
-  puid: 1000
-  pgid: 1000
-schema:
-  puid: int?
-  pgid: int?
-  multiuser_enabled: bool?
-  registration_enabled: bool?
-  usage_tracking_enabled: bool?
-image: ghcr.io/manyfold3d/manyfold-solo:latest
+hassio_api: false
+environment:
+  SECRET_KEY_BASE: "auto-generated-secret-key"
+options: {}
+schema: {}
+image: "ghcr.io/manyfold3d/manyfold-solo:latest"
