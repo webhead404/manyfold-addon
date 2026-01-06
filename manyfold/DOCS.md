@@ -69,6 +69,27 @@ pgid: 1000
 
 Set these to match your Home Assistant user/group for proper file access. Default values work for most installations.
 
+**To find your user ID:**
+```bash
+id -u  # Shows PUID
+id -g  # Shows PGID
+```
+
+Setting these correctly prevents the "running as root" security warning.
+
+### Library Path
+
+```yaml
+library_path: /media/3dprint-library
+```
+
+Configure where your 3D model files will be stored. The directory will be created automatically if it doesn't exist. This makes it easy to access your models via Samba at `\\homeassistant.local\media\3dprint-library`.
+
+Other common paths:
+- `/media/3dprint-library` (default) - Accessible via Samba media share
+- `/share/models` - Accessible via Samba share folder
+- `/config/models` - In your config directory
+
 ### Multiuser Mode
 
 ```yaml
