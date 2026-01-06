@@ -1,8 +1,8 @@
 build_from:
-  aarch64: ghcr.io/manyfold3d/manyfold-solo:latest
-  amd64: ghcr.io/manyfold3d/manyfold-solo:latest
-  armhf: ghcr.io/manyfold3d/manyfold-solo:latest
-  armv7: ghcr.io/manyfold3d/manyfold-solo:latest
+  aarch64: ghcr.io/home-assistant/aarch64-base:3.21
+  amd64: ghcr.io/home-assistant/amd64-base:3.21
+  armhf: ghcr.io/home-assistant/armhf-base:3.21
+  armv7: ghcr.io/home-assistant/armv7-base:3.21
 labels:
   org.opencontainers.image.title: "Manyfold"
   org.opencontainers.image.description: "Self-hosted digital asset manager for 3D print files"

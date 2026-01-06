@@ -20,6 +20,9 @@ map:
   - share:rw
   - media:rw
   - addons:ro
+docker_api: true
+privileged:
+  - SYS_ADMIN
 options:
   database_type: "sqlite"
   puid: 1000
@@ -39,3 +42,9 @@ schema:
   multiuser_enabled: bool?
   registration_enabled: bool?
   usage_tracking_enabled: bool?
+environment:
+  SECRET_KEY_BASE: "file:///data/secret_key_base"
+  DATABASE_ADAPTER: "sqlite3"
+  DATABASE_NAME: "/data/manyfold.db"
+  PUID: "1000"
+  PGID: "1000"
