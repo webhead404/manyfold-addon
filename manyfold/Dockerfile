@@ -1,11 +1,9 @@
-ARG BUILD_FROM
+ARG BUILD_FROM=ghcr.io/manyfold3d/manyfold-solo:latest
 FROM ${BUILD_FROM}
 
-# Set shell
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Copy run script that will handle configuration
+COPY run.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/run.sh
 
-# Copy startup script
-COPY run.sh /
-RUN chmod a+x /run.sh
-
-CMD [ "/run.sh" ]
+# Use the run script as entrypoint
+CMD ["/usr/local/bin/run.sh"]

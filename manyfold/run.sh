@@ -1,50 +1,23 @@
-#!/usr/bin/with-contenv bashio
-# ==============================================================================
-# Start Manyfold via Docker
-# ==============================================================================
+#!/bin/sh
+set -e
 
-bashio::log.info "Starting Manyfold container..."
-
-# Generate secret key if not exists
-if [ ! -f /data/secret_key_base ]; then
-    bashio::log.info "Generating SECRET_KEY_BASE..."
-    openssl rand -hex 64 > /data/secret_key_base
+# Generate a secret key if not exists
+if [ ! -f /data/secret_key ]; then
+    echo "Generating secret key..."
+    tr -dc A-Za-z0-9 </dev/urandom | head -c 64 > /data/secret_key
 fi
 
-SECRET_KEY=$(cat /data/secret_key_base)
-PUID=$(bashio::config 'puid' '1000')
-PGID=$(bashio::config 'pgid' '1000')
+# Set environment variables
+export SECRET_KEY_BASE=$(cat /data/secret_key)
+export DATABASE_ADAPTER=sqlite3
+export DATABASE_NAME=/data/manyfold.db
 
-# Build docker run command
-DOCKER_CMD="docker run --rm --name manyfold"
-DOCKER_CMD="${DOCKER_CMD} -p 3214:3214"
-DOCKER_CMD="${DOCKER_CMD} -v /data:/config"
-DOCKER_CMD="${DOCKER_CMD} -v /share:/share"
-DOCKER_CMD="${DOCKER_CMD} -v /media:/media"
-DOCKER_CMD="${DOCKER_CMD} -e SECRET_KEY_BASE=${SECRET_KEY}"
-DOCKER_CMD="${DOCKER_CMD} -e PUID=${PUID}"
-DOCKER_CMD="${DOCKER_CMD} -e PGID=${PGID}"
+# Ensure database directory exists and has correct permissions
+mkdir -p /data
+chmod 755 /data
 
-# Optional multiuser mode
-if bashio::config.true 'multiuser_enabled'; then
-    DOCKER_CMD="${DOCKER_CMD} -e MULTIUSER=enabled"
-    bashio::log.info "Multiuser mode enabled"
-    
-    if bashio::config.true 'registration_enabled'; then
-        DOCKER_CMD="${DOCKER_CMD} -e REGISTRATION=enabled"
-        bashio::log.info "Registration enabled"
-    fi
-fi
+echo "Starting Manyfold..."
+echo "Web interface will be available on port 3214"
 
-# Optional usage tracking
-if bashio::config.true 'usage_tracking_enabled'; then
-    DOCKER_CMD="${DOCKER_CMD} -e USAGE_TRACKING=enabled"
-    bashio::log.info "Usage tracking enabled"
-fi
-
-DOCKER_CMD="${DOCKER_CMD} ghcr.io/manyfold3d/manyfold-solo:latest"
-
-bashio::log.info "Web interface will be available at: http://homeassistant.local:3214"
-
-# Run Manyfold
-exec ${DOCKER_CMD}
+# Execute the original Manyfold entrypoint
+exec /init
