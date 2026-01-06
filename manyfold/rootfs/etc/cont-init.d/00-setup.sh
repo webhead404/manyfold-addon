@@ -1,6 +1,6 @@
-#!/usr/bin/with-contenv bash
+#!/bin/sh
 # ==============================================================================
-# Home Assistant Community Add-ons: Manyfold
+# Home Assistant Add-on: Manyfold
 # Generate secret key and set up environment
 # ==============================================================================
 
@@ -11,8 +11,11 @@ if [ ! -f /data/secret_key ]; then
     chmod 600 /data/secret_key
 fi
 
-# Export the secret key
-export SECRET_KEY_BASE=$(cat /data/secret_key)
+# Read the secret key
+SECRET_KEY=$(cat /data/secret_key)
+
+# Write to s6 environment so it's available to all services
+echo "$SECRET_KEY" > /var/run/s6/container_environment/SECRET_KEY_BASE
 
 # Ensure data directory has correct permissions
 mkdir -p /data
