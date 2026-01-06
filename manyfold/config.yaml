@@ -34,7 +34,8 @@ schema:
   database_password: password?
   puid: int?
   pgid: int?
-  model_libraries: [str]?
+  model_libraries:
+    - str?
   multiuser_enabled: bool?
   registration_enabled: bool?
   usage_tracking_enabled: bool?
