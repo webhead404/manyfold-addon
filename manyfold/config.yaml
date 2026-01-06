@@ -1,5 +1,5 @@
 name: Manyfold
-version: "1.0.10"
+version: "1.1.0"
 slug: manyfold
 description: Self-hosted digital asset manager for 3D print files
 url: https://github.com/manyfold3d/manyfold
@@ -19,10 +19,6 @@ map:
   - media:rw
   - config:rw
 options:
-  puid: 1000
-  pgid: 1000
   library_path: /media/3dprint-library
 schema:
-  puid: int
-  pgid: int
   library_path: str
