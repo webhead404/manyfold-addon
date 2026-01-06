@@ -1,4 +1,4 @@
-ARG BUILD_FROM
+ARG BUILD_FROM=ghcr.io/manyfold3d/manyfold-solo:latest
 FROM ${BUILD_FROM}
 
 # Set shell
@@ -20,3 +20,13 @@ LABEL \
 
 # Copy root filesystem
 COPY rootfs /
+
+# Install bashio for Home Assistant integration
+RUN apk add --no-cache \
+    bash \
+    jq \
+    openssl \
+    && mkdir -p /data
+
+# Make run script executable
+RUN chmod +x /etc/services.d/manyfold/run 2>/dev/null || true

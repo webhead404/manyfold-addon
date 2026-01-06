@@ -1,95 +1,48 @@
-#!/usr/bin/with-contenv bashio
+#!/usr/bin/env bash
 # ==============================================================================
 # Home Assistant Community Add-on: Manyfold
 # Runs the Manyfold application
 # ==============================================================================
 
-bashio::log.info "Starting Manyfold..."
+set -e
 
-# Load configuration
-declare database_type
-declare database_host
-declare database_port
-declare database_name
-declare database_user
-declare database_password
-declare puid
-declare pgid
-declare secret_key_base
+echo "Starting Manyfold..."
 
-database_type=$(bashio::config 'database_type')
-puid=$(bashio::config 'puid')
-pgid=$(bashio::config 'pgid')
+# Load configuration from Home Assistant
+CONFIG_PATH="/data/options.json"
 
 # Generate secret key if not exists
 if [ ! -f /data/secret_key_base ]; then
-    bashio::log.info "Generating SECRET_KEY_BASE..."
+    echo "Generating SECRET_KEY_BASE..."
     openssl rand -hex 64 > /data/secret_key_base
 fi
-secret_key_base=$(cat /data/secret_key_base)
 
-# Set up environment variables
-export PUID="${puid}"
-export PGID="${pgid}"
-export SECRET_KEY_BASE="${secret_key_base}"
+# Export environment variables
+export SECRET_KEY_BASE=$(cat /data/secret_key_base)
+export DATABASE_ADAPTER="sqlite3"
+export DATABASE_NAME="/data/manyfold.db"
+export PUID=$(jq -r '.puid // 1000' ${CONFIG_PATH})
+export PGID=$(jq -r '.pgid // 1000' ${CONFIG_PATH})
 
-# Configure database based on type
-if [ "${database_type}" == "sqlite" ]; then
-    bashio::log.info "Using SQLite database"
-    export DATABASE_ADAPTER="sqlite3"
-    export DATABASE_NAME="/data/manyfold.db"
-else
-    # PostgreSQL or MySQL
-    database_host=$(bashio::config 'database_host')
-    database_port=$(bashio::config 'database_port')
-    database_name=$(bashio::config 'database_name')
-    database_user=$(bashio::config 'database_user')
-    database_password=$(bashio::config 'database_password')
+# Optional multiuser mode
+if [ "$(jq -r '.multiuser_enabled // false' ${CONFIG_PATH})" = "true" ]; then
+    export MULTIUSER="enabled"
+    echo "Multiuser mode enabled"
     
-    export DATABASE_ADAPTER="${database_type}2"
-    export DATABASE_HOST="${database_host}"
-    export DATABASE_PORT="${database_port}"
-    export DATABASE_NAME="${database_name}"
-    export DATABASE_USER="${database_user}"
-    export DATABASE_PASSWORD="${database_password}"
-    
-    bashio::log.info "Using ${database_type} database at ${database_host}:${database_port}"
-fi
-
-# Configure Redis (using internal)
-export REDIS_URL="redis://localhost:6379/1"
-
-# Optional: Multiuser mode
-if bashio::config.has_value 'multiuser_enabled'; then
-    if bashio::config.true 'multiuser_enabled'; then
-        export MULTIUSER="enabled"
-        bashio::log.info "Multiuser mode enabled"
-        
-        if bashio::config.has_value 'registration_enabled'; then
-            if bashio::config.true 'registration_enabled'; then
-                export REGISTRATION="enabled"
-                bashio::log.info "Registration enabled"
-            fi
-        fi
+    if [ "$(jq -r '.registration_enabled // false' ${CONFIG_PATH})" = "true" ]; then
+        export REGISTRATION="enabled"
+        echo "Registration enabled"
     fi
 fi
 
-# Optional: Usage tracking
-if bashio::config.has_value 'usage_tracking_enabled'; then
-    if bashio::config.true 'usage_tracking_enabled'; then
-        export USAGE_TRACKING="enabled"
-        bashio::log.info "Usage tracking enabled"
-    fi
+# Optional usage tracking
+if [ "$(jq -r '.usage_tracking_enabled // false' ${CONFIG_PATH})" = "true" ]; then
+    export USAGE_TRACKING="enabled"
+    echo "Usage tracking enabled"
 fi
 
-bashio::log.info "Manyfold is starting on port 3214..."
-bashio::log.info "Access the web interface at: http://homeassistant.local:3214"
+echo "Manyfold starting on port 3214..."
+echo "Access at: http://homeassistant.local:3214"
 
-# Start Redis in the background (for solo image compatibility)
-if command -v redis-server &> /dev/null; then
-    redis-server --daemonize yes
-    bashio::log.info "Redis started"
-fi
-
-# Execute Manyfold
+# Execute the original Manyfold entrypoint
 exec /init

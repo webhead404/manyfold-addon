@@ -39,4 +39,3 @@ schema:
   multiuser_enabled: bool?
   registration_enabled: bool?
   usage_tracking_enabled: bool?
-image: ghcr.io/manyfold3d/manyfold-solo
