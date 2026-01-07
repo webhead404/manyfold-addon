@@ -75,16 +75,25 @@ library_path: /share/3d-prints
 ### Library Path
 
 ```yaml
-library_path: /media/3dprint-library
+library_path: /media/HA-USB/3dprint-library
 ```
 
-**Important:** This setting only creates the directory. You still need to add it as a library in Manyfold's web interface.
+**Important:** This is the **Docker container path**, not the host path!
 
-The `library_path` option:
-- Creates the directory if it doesn't exist
-- Sets it up with proper permissions
-- Makes it accessible via Samba
-- **Does NOT automatically add it as a library in Manyfold**
+#### Understanding Path Mapping
+
+Home Assistant automatically maps directories:
+
+| Host Path (Home Assistant OS) | Container Path (Manyfold sees) |
+|-------------------------------|--------------------------------|
+| `/mnt/data/supervisor/media/` | `/media/` |
+| `/mnt/data/supervisor/share/` | `/share/` |
+
+**Example:**
+- Host: `/mnt/data/supervisor/media/HA-USB/3dprint-library`
+- Container: `/media/HA-USB/3dprint-library` ← Use this in config!
+
+The `library_path` should be the **container path** (starting with `/media/` or `/share/`).
 
 ### How to Add Your Library
 
@@ -95,9 +104,9 @@ After starting the add-on:
 3. **Settings** → **Libraries** → **New Library**
 4. Configure the library:
    - **Name**: "My 3D Models" (or whatever you prefer)
-   - **Path**: Use the EXACT path from your config (e.g., `/media/3dprint-library`)
+   - **Path**: Use the EXACT path from your config (e.g., `/media/HA-USB/3dprint-library`)
    - **Storage Service**: File system
-   - ⚠️ **DO NOT check "Create directory"** - it already exists!
+   - ⚠️ **UNCHECK "Create directory"** - it already exists!
 5. Click "Create Library"
 6. Your library is now ready!
 

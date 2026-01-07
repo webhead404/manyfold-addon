@@ -6,8 +6,6 @@
 
 CONFIG_PATH=/data/options.json
 
-echo "=== Manyfold Add-on Initialization ==="
-
 # Generate secret key if it doesn't exist
 if [ ! -f /data/secret_key ]; then
     echo "Generating SECRET_KEY_BASE..."
@@ -19,49 +17,20 @@ fi
 SECRET_KEY=$(cat /data/secret_key)
 
 # Read library path from configuration
-LIBRARY_PATH=$(jq --raw-output '.library_path // "/media/3dprint-library"' $CONFIG_PATH 2>/dev/null || echo "/media/3dprint-library")
+LIBRARY_PATH=$(jq --raw-output '.library_path // "/media/3dprint-library"' $CONFIG_PATH)
 
-echo "Configuration:"
-echo "  Library path: $LIBRARY_PATH"
-echo "  Database: /data/manyfold.db"
-
-# Write environment variables to s6
+# Write SECRET_KEY_BASE to s6 environment
 echo "$SECRET_KEY" > /var/run/s6/container_environment/SECRET_KEY_BASE
 
-# CRITICAL: Force Manyfold to use /data for database, not /config
-echo "sqlite3" > /var/run/s6/container_environment/DATABASE_ADAPTER
-echo "/data/manyfold.db" > /var/run/s6/container_environment/DATABASE_NAME
-echo "/data" > /var/run/s6/container_environment/DATABASE_PATH
-
-# Also set it in the shell environment for any scripts
-export DATABASE_ADAPTER=sqlite3
-export DATABASE_NAME=/data/manyfold.db
-export DATABASE_PATH=/data
-
-# Ensure data directory exists with correct permissions
+# Ensure data directory exists
 mkdir -p /data
-chmod 777 /data  # Make it fully accessible
+chmod 755 /data
 
-# Create library directory with full permissions
+# Create library directory if it doesn't exist
 mkdir -p "$LIBRARY_PATH"
-chmod -R 777 "$LIBRARY_PATH"  # Make library fully accessible for read/write/scan
+chmod 755 "$LIBRARY_PATH"
 
-# Ensure Manyfold can access the directory
-chown -R root:root "$LIBRARY_PATH" 2>/dev/null || true
-chown -R root:root /data 2>/dev/null || true
-
-echo "Setting permissions on library directory..."
-echo "  Path: $LIBRARY_PATH"
-echo "  Permissions: 777 (full access)"
-
-# Remove any old database from wrong location
-if [ -f /config/manyfold.sqlite3 ]; then
-    echo "⚠ WARNING: Found old database at /config/manyfold.sqlite3"
-    echo "  This will be ignored. Database is now at /data/manyfold.db"
-fi
-
-echo "=== Manyfold initialization complete ==="
-echo "Secret key configured"
-echo "Database location: /data/manyfold.db" 
-echo "Library: $LIBRARY_PATH (permissions: 777)"
+echo "Manyfold initialization complete"
+echo "Database: /data/manyfold.db"
+echo "Library path: $LIBRARY_PATH"
 echo "Web interface on port 3214"
