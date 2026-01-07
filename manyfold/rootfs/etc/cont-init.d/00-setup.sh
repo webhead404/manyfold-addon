@@ -22,6 +22,17 @@ LIBRARY_PATH=$(jq --raw-output '.library_path // "/media/3dprint-library"' $CONF
 # Write SECRET_KEY_BASE to s6 environment
 echo "$SECRET_KEY" > /var/run/s6/container_environment/SECRET_KEY_BASE
 
+# ALSO export it in the current environment (for Rails)
+export SECRET_KEY_BASE="$SECRET_KEY"
+
+# Write to a file that will be sourced by all processes
+cat > /etc/profile.d/manyfold.sh << EOF
+export SECRET_KEY_BASE="$SECRET_KEY"
+export DATABASE_ADAPTER=sqlite3
+export DATABASE_NAME=/data/manyfold.db
+EOF
+chmod +x /etc/profile.d/manyfold.sh
+
 # Ensure data directory exists
 mkdir -p /data
 chmod 755 /data
@@ -33,4 +44,5 @@ chmod 755 "$LIBRARY_PATH"
 echo "Manyfold initialization complete"
 echo "Database: /data/manyfold.db"
 echo "Library path: $LIBRARY_PATH"
+echo "SECRET_KEY_BASE configured: ${#SECRET_KEY} characters"
 echo "Web interface on port 3214"
