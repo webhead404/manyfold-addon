@@ -16,33 +16,13 @@ fi
 # Read the secret key
 SECRET_KEY=$(cat /data/secret_key)
 
-# Read library path from configuration (but don't create it!)
-LIBRARY_PATH=$(jq --raw-output '.library_path // "/media/3dprint-library"' $CONFIG_PATH)
-
-# Write SECRET_KEY_BASE to s6 environment
+# Write to s6 environment so it's available to all services
 echo "$SECRET_KEY" > /var/run/s6/container_environment/SECRET_KEY_BASE
 
-# ALSO export it in the current environment (for Rails)
-export SECRET_KEY_BASE="$SECRET_KEY"
-
-# Write to a file that will be sourced by all processes
-cat > /etc/profile.d/manyfold.sh << EOF
-export SECRET_KEY_BASE="$SECRET_KEY"
-export DATABASE_ADAPTER=sqlite3
-export DATABASE_NAME=/data/manyfold.db
-EOF
-chmod +x /etc/profile.d/manyfold.sh
-
-# Ensure data directory exists
+# Ensure data directory has correct permissions
 mkdir -p /data
 chmod 755 /data
 
-# DO NOT create library directory - let Manyfold create it when you check the box!
-# This triggers Manyfold's initial scan
-
 echo "Manyfold initialization complete"
 echo "Database: /data/manyfold.db"
-echo "Configured library path: $LIBRARY_PATH"
-echo "IMPORTANT: Check 'Create directory' when adding library in Manyfold UI"
-echo "SECRET_KEY_BASE configured: ${#SECRET_KEY} characters"
 echo "Web interface on port 3214"
