@@ -11,22 +11,121 @@ Manyfold is a self-hosted digital asset manager specifically designed for 3D pri
 - ActivityPub federation (connect with other instances)
 - Privacy-focused (all data stays on your server)
 
-## Quick Start
+## First-Time Setup
 
-1. **Start the add-on** and wait for it to initialize
-2. **Open the Web UI** by clicking "OPEN WEB UI" or visiting `http://homeassistant.local:3214`
-3. **Create an admin account** on your first visit
-4. **Add a library**:
+⚠️ **CRITICAL:** When adding a library, use the EXACT path from your configuration, NOT the parent directory!
+
+❌ **WRONG:** Using `/media/` will scan your entire media folder!
+✅ **CORRECT:** Use `/media/3dprint-library` (or whatever you configured)
+
+After starting the add-on:
+
+1. Click "Open Web UI"
+2. Create an admin account (first user becomes admin)
+3. **Add a library:**
    - Go to Settings → Libraries
    - Click "New Library"
-   - Enter a path like `/share/3dmodels`
+   - **Name:** "3D Models" (or any name you prefer)
+   - **Path:** Enter the EXACT path from your add-on configuration
+     - If your config has `library_path: /media/3dprint-library`
+     - Then enter `/media/3dprint-library` in Manyfold
+   - **Storage service:** File system
+   - ⚠️ **UNCHECK "Create directory if it doesn't exist"** - the add-on already created it
+   - ⚠️ **VERIFY the path is correct** before clicking Create
    - Click Create
-5. **Upload your models** to the configured directory
-6. **Scan the library** to import your models
+4. **Upload models:**
+   - Via Samba: `\\homeassistant.local\media\3dprint-library`
+   - Or drag-and-drop in Manyfold web UI
+5. Click "Scan Library" to import files
+5. Click "Scan Library" to import existing files
 
 ## Configuration
 
-### Database Options
+### Library Path
+
+```yaml
+library_path: /media/3dprint-library
+```
+
+**Important Notes:**
+- The add-on creates this directory automatically
+- When adding the library in Manyfold, use this EXACT path
+- Do NOT use just `/media` - that's the entire media folder
+- Do NOT check "create directory" in Manyfold - it's already created
+- The path must be absolute (starting with `/`)
+
+### Common Library Paths
+
+```yaml
+# Recommended (default)
+library_path: /media/3dprint-library
+
+# Alternative options
+library_path: /share/models
+library_path: /media/stl-files
+library_path: /share/3d-prints
+```
+
+**Accessible via Samba:**
+- `/media/X` → `\\homeassistant.local\media\X`
+- `/share/X` → `\\homeassistant.local\share\X`
+
+## Configuration
+
+### Library Path
+
+```yaml
+library_path: /media/3dprint-library
+```
+
+**Important:** This setting only creates the directory. You still need to add it as a library in Manyfold's web interface.
+
+The `library_path` option:
+- Creates the directory if it doesn't exist
+- Sets it up with proper permissions
+- Makes it accessible via Samba
+- **Does NOT automatically add it as a library in Manyfold**
+
+### How to Add Your Library
+
+After starting the add-on:
+
+1. Click "Open Web UI"
+2. Create admin account (first user)
+3. **Settings** → **Libraries** → **New Library**
+4. Configure the library:
+   - **Name**: "My 3D Models" (or whatever you prefer)
+   - **Path**: Use the EXACT path from your config (e.g., `/media/3dprint-library`)
+   - **Storage Service**: File system
+   - ⚠️ **DO NOT check "Create directory"** - it already exists!
+5. Click "Create Library"
+6. Your library is now ready!
+
+### Common Mistake to Avoid
+
+❌ **DON'T** add `/media/` as the library path - this will scan everything in your media folder!
+
+✅ **DO** use the specific subdirectory: `/media/3dprint-library`
+
+### Multiple Libraries
+
+You can create multiple libraries by:
+
+1. Using subdirectories under your library_path:
+   ```
+   /media/3dprint-library/terrain
+   /media/3dprint-library/miniatures
+   /media/3dprint-library/functional
+   ```
+
+2. Adding each subdirectory as a separate library in Manyfold
+
+Or configure different paths:
+```yaml
+library_path: /media/models
+```
+
+Then create subdirectories and add them individually.
 
 **SQLite (Recommended for most users)**
 ```yaml
