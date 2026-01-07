@@ -12,3 +12,5 @@ ENV DATABASE_ADAPTER=sqlite3 \
     DATABASE_NAME=/data/manyfold.db
 
 # The image already has ENTRYPOINT ["/init"] which will run our cont-init.d script
+
+
