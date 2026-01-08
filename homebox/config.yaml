@@ -1,0 +1,26 @@
+name: Homebox
+version: "1.0.0"
+slug: homebox
+description: Home inventory and organization system
+url: https://github.com/sysadminsmedia/homebox
+webui: http://[HOST]:[PORT:7745]
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+init: false
+startup: application
+boot: auto
+ports:
+  7745/tcp: 7745
+map:
+  - data:rw
+options:
+  log_level: info
+  max_upload_size: 10
+  allow_registration: true
+schema:
+  log_level: list(debug|info|warn|error)?
+  max_upload_size: int?
+  allow_registration: bool?
